@@ -1,0 +1,233 @@
+/*Configure the tab buttons*/
+.sheet-input,
+.sheet-display,
+.sheet-abilities {
+    display: none;
+}
+
+
+/* show the selected tab */
+.sheet-tabstoggle[value="input"] ~ div.sheet-input,
+.sheet-tabstoggle[value="display"] ~ div.sheet-display,
+.sheet-tabstoggle[value="abilities"] ~ div.sheet-abilities {
+    display: block;
+}
+
+
+.mysheet {
+    width: 830px;
+    height: 830px;
+}
+.attributes {
+    padding: 15px 0px 0px 15px;
+}
+
+input[type="hidden"][name="attr_nation"] ~ .mysheet {
+    background-color: lightgray;
+}
+input[type="hidden"][name="attr_nation"][value="USA"] ~ .mysheet {
+    background-color: #006400;
+}
+input[type="hidden"][name="attr_nation"][value="Germany"] ~ .mysheet {
+    background-color: #000000;
+}
+input[type="hidden"][name="attr_nation"][value="Soviet"] ~ .mysheet {
+    background-color: red;
+}
+input[type="hidden"][name="attr_nation"][value="UK"] ~ .mysheet {
+    background-color: #0E2A7A;
+}
+
+
+main {
+  display: grid;
+  width: 800px;
+  height: 800px;
+  grid-gap: 4px;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-areas:"flag     header    header   flag2"
+                      "common   common    common   special"
+                      "common   common    common   special"
+                      "att      att       att      att";
+}
+
+
+
+
+
+/*----------------- GENERAL CSS ------------------*/
+
+section {
+    padding: 5px;
+    border-style: solid;
+}
+
+/* CSS Flexbox styling, used for adjusting how content inside section behaves */
+.f-col {
+  display: flex;
+  flex-direction: column;
+}
+.f-row {
+  display: flex;
+  flex-direction: row;
+  justify-items: all;
+}
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+.nowrap {
+  display: flex;
+  flex-wrap: nowrap;
+}
+.f-center {
+  align-items: center;
+  justify-content: center;
+}
+
+
+/*----------------- Text & Input styling -----------------*/
+
+/* these are for overwriting default CSS that comes from Roll20 */
+
+.charsheet * {
+  font-family: "serif;";
+}
+
+.charsheet h1{
+  text-align: center;
+  color: white;
+}
+.charsheet h2{
+  text-align: center;
+  color:  darkred;
+}
+.charsheet h3{
+  text-align: center;
+  color: black;
+}
+
+.charsheet h4{
+  text-align: center;
+  color: darkred;
+}
+
+.charsheet h5{
+  text-align: center;
+  color: darkred;
+}
+
+
+
+/*------------- Section-specific CSS -------------*/
+
+
+.flag {
+  grid-area: flag;
+  align-items: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: none;
+}
+
+.flag2 {
+  grid-area: flag2;
+  align-items: center;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: none;
+}
+
+.header {
+  grid-area: header;
+  flex-direction: center;
+  border-style: none;
+}
+
+.header h3 {
+  color: white;
+}
+
+
+.special {
+  grid-area: special;
+  flex-direction: center;
+  background-color: white;
+}
+
+.common {
+  grid-area: common;
+  background-color: white;
+}
+
+.common > img {
+  object-fit: contain;
+  width: 100%;
+  max-height: 100%;
+}
+
+
+.att {
+  grid-area: att;
+  background-color: white;
+}
+
+.attinfo {
+    grid-area: attinfo;
+    display: grid;
+    grid-gap: 2px;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    background-color: white;
+    text-align: center;
+}
+
+
+.toggle:not([value="Infantry"]) ~ .infantry {
+    display:  none;
+}
+.toggle:not([value="Tank"]) ~ .tank {
+    display:  none;
+}
+.toggle:not([value="Artillery"]) ~ .artillery {
+    display:  none;
+}
+
+
+
+
+
+
+.spheader {
+  text-align: center;
+}
+
+.spheader h2 {
+  text-align: center;
+  color: white;
+}
+
+.spbody h4 {
+  color: white;
+}
+.item span {
+  font-size: 14px;
+}
+.spbody {
+  color: white;
+  align-items: center;
+  text-align: center;
+  padding: 0px 0px 0px 20px;
+}
+
+.item {
+  align-items: left;
+  width: fit-content;
+  padding: 5px;
+  text-align: left;
+  margin-bottom: 1em;
+}
+

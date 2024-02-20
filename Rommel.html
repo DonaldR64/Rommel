@@ -1,0 +1,200 @@
+<input type="hidden" class="sheet-tabstoggle" name="attr_sheetTab"  value="display"  />
+<div>
+    <button type="action" name="act_input" >Input</button>
+    <button type="action" name="act_display" >Display</button>
+    <button type="action" name="act_abilities" >Special Rules</button>
+</div>
+
+<div class="sheet-input">
+    <div class="2colrow">
+        <div class="col">
+            <h3>Unit Information</h3>
+            <label>Name:</label><input type="text" name="attr_character_name">
+            <br>
+            <label for="attr_nation">nation:</label>
+            <select name="attr_nation">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="Germany">Germany</option>
+                <option value="Soviet Union">Soviet Union</option>
+                <option value="USA">USA</option>
+                <option value="UK">UK</option>
+               
+
+
+            </select>
+        </div>
+        <div class="col">
+            <h3>Attributes</h3>
+            <label>Track:</label><input type="text" name="attr_track">
+            <label>Armour Value:</label><input type="text" name="attr_armour">
+            <label for="attr_movement">Movement:</label>
+            <select name="attr_movement">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="Foot">Foot</option>
+                <option value="Motorized">Motorized</option>
+            </select>  
+
+
+            <label>Range (Artillery):</label><input type="number" name="attr_range">
+            <label>Barrage (Artillery):</label><input type="number" name="attr_barrage">
+
+            <label for="attr_type">Type:</label>
+            <select name="attr_type">
+                <option value="" selected disabled hidden>Choose here</option>
+                <option value="Infantry">Infantry</option>
+                <option value="Tank">Tank</option>
+                <option value="Artillery">Artillery</option>
+                <option value="System Unit">System Unit</option>
+            </select>        
+          </div>
+    </div>    
+    <label>Special Rules:</label><input type="text" name="attr_special">
+</div>
+
+
+
+<div class="sheet-display">
+    <input type="hidden" name="attr_nation"/>
+
+    <div class="mysheet">
+      <div class="attributes">
+
+        <main>
+        <input type="hidden" name="attr_nation"/>
+          <section class="header f-center">
+            <h1><span name="attr_character_name"></span></h1>
+            <h3><span name="attr_nation"></span> <span name="attr_type"></span></h3>
+            <h3><span name="attr_movement"></span> <span> Movement</span></h3>
+          </section>
+
+          <section class="common f-center">
+              <img alt="Character Avatar" name="attr_character_avatar"/>
+          </section>
+
+          <section class="att">
+            <input type="hidden" name="attr_type" class="toggle">
+            <div class="infantry">
+                <div><span>Track</span></div>
+                <h4><span name="attr_track"></span></h4>
+            </div>
+            <div class="tank">
+                <div><span>Track</span></div>
+                <h4><span name="attr_track"></span></h4>
+                <div><span>Armour Value</span></div>
+                <h4><span name="attr_armour"></span></h4>
+            </div>
+            <div class="artillery">
+                <div><span>Track</span></div>
+                <h4><span name="attr_track"></span></h4>
+                <div><span>Barrage Value</span></div>
+                <h4><span name="attr_barrage"></span></h4>
+                <div><span>Barrage Value</span></div>
+                <h4><span name="attr_range"></span></h4>
+            </div>
+           
+          </section>
+
+          <section class="flag">
+            <img name="attr_nationImage">
+          </section>
+          
+          <section class="flag2">
+            <img name="attr_nationImage">
+          </section>
+
+          <section class="special">
+            <h3>Special Rules</h3>
+            <h4><span name="attr_special0"></span></h4>
+            <h4><span name="attr_special1"></span></h4>
+            <h4><span name="attr_special2"></span></h4>
+            <h4><span name="attr_special3"></span></h4>
+            <h4><span name="attr_special4"></span></h4>
+          </section>
+
+        </main>
+      </div>
+    </div>    
+</div>
+
+<div class="sheet-abilities">
+  <input type="hidden" name="attr_nation"/>
+  <div class="mysheet">
+      <div class="attributes">
+          <input type="hidden" name="attr_nation"/>
+          <div class="spheader">
+              <h2>Special Rules</h2>
+              <br>
+          </div>
+          <input type="hidden" name="attr_nation"/>
+          <div class="spbody">
+              <div class = "item">
+                  <span style="font-weight:bold;" name="attr_spec1Name"></span>
+                  <span name="attr_spec1Text"></span>
+              </div>
+              <div class = "item">
+                  <span style="font-weight:bold;" name="attr_spec2Name"></span>
+                  <span name="attr_spec2Text"></span>
+              </div>
+              <div class = "item">
+                  <span style="font-weight:bold;" name="attr_spec3Name"></span>
+                  <span name="attr_spec3Text"></span>
+              </div>
+              <div class = "item">                
+                  <span style="font-weight:bold;" name="attr_spec4Name"></span>
+                  <span name="attr_spec4Text"></span>
+              </div>
+              <div class = "item">                                
+                  <span style="font-weight:bold;" name="attr_spec5Name"></span>
+                  <span name="attr_spec5Text"></span>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<script type="text/worker">
+    const buttonlist = ["input","display","abilities"];
+    buttonlist.forEach(button => {
+        on(`clicked:${button}`, function() {
+            setAttrs({
+                sheetTab: button
+            });
+        });
+    });
+
+    on("sheet:opened", function() {
+        setAttrs({sheetTab:"display"});
+    });
+
+    on("change:attrs sheet:opened", function() { 
+        getAttrs(["nation","special"], function(values) {
+            let nation = values.nation;
+            let nationImage = "";
+
+            if (nation === "Germany") {
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/324330922/vm_sbQZSkc81fR4CtQp57g/thumb.png?1674494502";
+            }
+            if (nation === "Soviet") {
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877";
+            }
+
+
+            let special = values.special;
+            special = special.split(",");
+
+            setAttrs({
+                "nationImage": nationImage,
+                "special0": special[0],
+                "special1": special[1],
+                "special2": special[2],
+                "special3": special[3],
+                "special4": special[4],
+            });
+        });    
+    }); 
+
+
+ 
+
+</script>
