@@ -47,9 +47,8 @@ main {
   grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
   grid-template-areas:"flag     header    header   flag2"
-                      "common   common    common   special"
-                      "common   common    common   special"
-                      "att      att       att      att";
+                      "common   common    common   att"
+                      "common   common    common   special";
 }
 
 
