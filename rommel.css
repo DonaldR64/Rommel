@@ -187,6 +187,9 @@ section {
     display:  none;
 }
 
+.toggle:not([value="On"]) ~ .special {
+    display:  none;
+}
 
 .infantry {
     grid-area: infantry;
