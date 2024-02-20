@@ -148,24 +148,16 @@
           <input type="hidden" name="attr_nation"/>
           <div class="spbody">
               <div class = "item">
-                  <span style="font-weight:bold;" name="attr_spec1Name"></span>
-                  <span name="attr_spec1Text"></span>
+                  <span style="font-weight:bold;" name="attr_traits0"></span>
+                  <span name="attr_traits0Text"></span>
               </div>
               <div class = "item">
-                  <span style="font-weight:bold;" name="attr_spec2Name"></span>
-                  <span name="attr_spec2Text"></span>
+                  <span style="font-weight:bold;" name="attr_traits1"></span>
+                  <span name="attr_traits1Text"></span>
               </div>
               <div class = "item">
-                  <span style="font-weight:bold;" name="attr_spec3Name"></span>
-                  <span name="attr_spec3Text"></span>
-              </div>
-              <div class = "item">                
-                  <span style="font-weight:bold;" name="attr_spec4Name"></span>
-                  <span name="attr_spec4Text"></span>
-              </div>
-              <div class = "item">                                
-                  <span style="font-weight:bold;" name="attr_spec5Name"></span>
-                  <span name="attr_spec5Text"></span>
+                  <span style="font-weight:bold;" name="attr_traits2"></span>
+                  <span name="attr_traits2Text"></span>
               </div>
           </div>
       </div>
@@ -206,39 +198,41 @@
             let traitInfo = [];
             if (values.ai === "1") {
                 traits.push("Armoured Infantry");
-
+                traitInfo.push("Counts as Armoured<br>Tactical Movement of 2");
             };
             if (values.rare === "1") {
                 traits.push("Rare Unit")
-            
+                traitInfo.push("May not be Reorganized");
             };
             if (values.spa === "1") {
                 traits.push("Self-Propelled Artillery")
-            
+                traitInfo.push("May use tactical movement without being tipped.<br>May barrage from a beach square")
             };
             if (values.is === "1") {
                 traits.push("Infantry Support")
-            
+                traitInfo.push("Not vulnerable in non-open terrain.<br>Negates attacker's penalty vs. urban, mountain, bocage.")
             };
             if (values.rockets === "1") {
                 traits.push("Rocket Artillery")
-            
+                traitInfo.push("Can only barrage on Offensive")
             };
             if (values.recon === "1") {
                 traits.push("Recon")
-            
+                traitInfo.push("May withdraw or scout in a combat");
             };
             if (values.cav === "1") {
                 traits.push("Cavalry")
-            
+                traitInfo.push("An infantry unit that may move 2 squares in a tactical
+                phase, 6 by road movement, and may evade.")
             };
             if (values.pioneer === "1") {
                 traits.push("Pioneer")
-            
+                traitInfo.push("May use pioneer effects while attacking.")
             };
             if (values.unreliable === "1") {
-                traits.push("Unreliable Unit")
-            
+                traits.push("Unreliable Unit");
+                traitInfo.push("Roll at the end of any phase in which it moved more
+                than 1 square. On a 6 it takes one loss.")
             };
 
             let traitsDisplay = "Off";
@@ -254,6 +248,9 @@
                 "traits1": traits[1],
                 "traits2": traits[2],
                 "traitsDisplay": traitsDisplay,
+                "traits0Text": traitInfo[0],
+                "traits1Text": traitInfo[1],
+                "traits2Text": traitInfo[2],
                 "periodText": periodText,
             });
         });    
