@@ -2,7 +2,7 @@
 <div>
     <button type="action" name="act_input" >Input</button>
     <button type="action" name="act_display" >Display</button>
-    <button type="action" name="act_abilities" >Special Rules</button>
+    <button type="action" name="act_abilities" >Traits</button>
 </div>
 
 <div class="sheet-input">
@@ -55,7 +55,7 @@
             </select>        
           </div>
     </div>    
-    <label>Special Rules:</label><input type="text" name="attr_special">
+    <label>Traits:</label><input type="text" name="attr_traits">
 </div>
 
 
@@ -109,10 +109,10 @@
             <img name="attr_nationImage">
           </section>
 
-          <section class="special">
-            <h3><span name="attr_special0"></span></h3>
-            <h3><span name="attr_special1"></span></h3>
-            <h3><span name="attr_special2"></span></h3>
+          <section class="traits">
+            <h3><span name="attr_traits0"></span></h3>
+            <h3><span name="attr_traits1"></span></h3>
+            <h3><span name="attr_traits2"></span></h3>
           </section>
 
         </main>
@@ -126,7 +126,7 @@
       <div class="attributes">
           <input type="hidden" name="attr_nation"/>
           <div class="spheader">
-              <h2>Special Rules</h2>
+              <h2>Traits</h2>
               <br>
           </div>
           <input type="hidden" name="attr_nation"/>
@@ -172,7 +172,7 @@
     });
 
     on("change:attrs sheet:opened", function() { 
-        getAttrs(["nation","special","period"], function(values) {
+        getAttrs(["nation","traits","period"], function(values) {
             let nation = values.nation;
             let nationImage = "";
 
@@ -186,19 +186,19 @@
             let periodText = values.period + " ";
             if (periodText === "Any ") {periodText = ""};
             
-            let special = values.special;
-            let specialDisplay = "Off"
-            special = special.split(",");
-            if (special) {
-                specialDisplay = "On"
+            let traits = values.traits;
+            let traitsDisplay = "Off"
+            traits = traits.split(",");
+            if (traits) {
+                traitsDisplay = "On"
             }
 
             setAttrs({
                 "nationImage": nationImage,
-                "special0": special[0],
-                "special1": special[1],
-                "special2": special[2],
-                "specialDisplay": specialDisplay,
+                "traits0": traits[0],
+                "traits1": traits[1],
+                "traits2": traits[2],
+                "traitsDisplay": traitsDisplay,
                 "periodText": periodText,
             });
         });    

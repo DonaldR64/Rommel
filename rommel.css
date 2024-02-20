@@ -49,7 +49,7 @@ main {
   grid-template-areas:"flag     header    header   flag2"
                       "common   common    common   att"
                       "common   common    common   att"
-                      "common   common    common   special";
+                      "common   common    common   traits";
 }
 
 
@@ -152,8 +152,8 @@ section {
 }
 
 
-.special {
-  grid-area: special;
+.traits {
+  grid-area: traits;
   flex-direction: center;
   background-color: white;
 }
@@ -188,7 +188,7 @@ section {
     display:  none;
 }
 
-.toggle:not([value="On"]) ~ .special {
+.toggle:not([value="On"]) ~ .traits {
     display:  none;
 }
 
