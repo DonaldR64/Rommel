@@ -55,7 +55,23 @@
             </select>        
           </div>
     </div>    
-    <label>Traits:</label><input type="text" name="attr_traits">
+    <h3>Traits</h3>
+    <label>Armoured Infantry:</label><input type="checkbox" name="attr_ai" value="1">
+    <label>Rare Unit:</label><input type="checkbox" name="attr_rare" value="1">
+    <label>Self Propelled Artillery:</label><input type="checkbox" name="attr_spa" value="1">
+    <label>Infantry Support:</label><input type="checkbox" name="attr_is" value="1">
+    <label>Rocket Artillery:</label><input type="checkbox" name="attr_rockets" value="1">
+    <label>Recon:</label><input type="checkbox" name="attr_recon" value="1">
+    <label>Cavalry:</label><input type="checkbox" name="attr_cav" value="1">
+    <label>Pioneer:</label><input type="checkbox" name="attr_pioneer" value="1">
+    <label>Unreliable:</label><input type="checkbox" name="attr_unreliable" value="1">
+
+
+
+
+
+
+
 </div>
 
 
@@ -172,7 +188,7 @@
     });
 
     on("change:attrs sheet:opened", function() { 
-        getAttrs(["nation","traits","period"], function(values) {
+        getAttrs(["nation","period","ai","rare","spa","is","rockets","recon","cav","pioneer","unreliable"], function(values) {
             let nation = values.nation;
             let nationImage = "";
 
@@ -186,12 +202,51 @@
             let periodText = values.period + " ";
             if (periodText === "Any ") {periodText = ""};
             
-            let traits = values.traits;
-            let traitsDisplay = "Off"
-            traits = traits.split(",");
-            if (traits) {
-                traitsDisplay = "On"
+            let traits = [];
+            let traitInfo = [];
+            if (values.ai === "1") {
+                traits.push("Armoured Infantry");
+
+            };
+            if (values.rare === "1") {
+                traits.push("Rare Unit")
+            
+            };
+            if (values.spa === "1") {
+                traits.push("Self-Propelled Artillery")
+            
+            };
+            if (values.is === "1") {
+                traits.push("Infantry Support")
+            
+            };
+            if (values.rockets === "1") {
+                traits.push("Rocket Artillery")
+            
+            };
+            if (values.recon === "1") {
+                traits.push("Recon")
+            
+            };
+            if (values.cav === "1") {
+                traits.push("Cavalry")
+            
+            };
+            if (values.pioneer === "1") {
+                traits.push("Pioneer")
+            
+            };
+            if (values.unreliable === "1") {
+                traits.push("Unreliable Unit")
+            
+            };
+
+            let traitsDisplay = "Off";
+            if (traits.length > 0) {
+                traitsDisplay = "On";
             }
+
+
 
             setAttrs({
                 "nationImage": nationImage,
