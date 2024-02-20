@@ -24,10 +24,10 @@
             <label for="attr_period">Period</label>
             <select name="attr_period">
                 <option value="" selected disabled hidden>Choose here</option>
+                <option value="Any">Any</option>
                 <option value="Early War">Early War</option>
                 <option value="Mid War">Mid War</option>
                 <option value="Late War">Late War</option>
-            
             </select>
         </div>
         <div class="col">
@@ -70,7 +70,7 @@
         <input type="hidden" name="attr_nation"/>
           <section class="header f-center">
             <h1><span name="attr_character_name"></span></h1>
-            <h3><span name="attr_nation"></span> <span name="attr_period"></span> <span name="attr_type"></span></h3>
+            <h3><span name="attr_periodText"></span><span name="attr_type"></span></h3>
             <h3><span name="attr_movement"></span>
           </section>
 
@@ -172,7 +172,7 @@
     });
 
     on("change:attrs sheet:opened", function() { 
-        getAttrs(["nation","special"], function(values) {
+        getAttrs(["nation","special","period"], function(values) {
             let nation = values.nation;
             let nationImage = "";
 
@@ -183,7 +183,9 @@
                 nationImage = "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877";
             }
 
-
+            let periodText = values.period + " ";
+            if (periodText === "Any ") {periodText = ""};
+            
             let special = values.special;
             let specialDisplay = "Off"
             special = special.split(",");
@@ -197,6 +199,7 @@
                 "special1": special[1],
                 "special2": special[2],
                 "specialDisplay": specialDisplay,
+                "periodText": periodText,
             });
         });    
     }); 
