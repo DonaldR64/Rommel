@@ -18,7 +18,8 @@
                 <option value="Soviet Union">Soviet Union</option>
                 <option value="USA">USA</option>
                 <option value="UK">UK</option>
-            
+                <option value="Canada">Canada</option>
+                <option value="Italy">Italy</option>
             </select>
             <br>
             <label for="attr_period">Period</label>
@@ -190,6 +191,20 @@
             if (nation === "Soviet Union") {
                 nationImage = "https://s3.amazonaws.com/files.d20.io/images/324272729/H0Ea79FLkZIn-3riEhuOrA/thumb.png?1674441877";
             }
+            if (nation === "USA") {
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/327595663/Nwyhbv22KB4_xvwYEbL3PQ/thumb.png?1676165491";
+            }
+            if (nation === "UK") {
+                nationImage = "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/1200px-Flag_of_the_United_Kingdom.svg.png";
+            }
+            if (nation === "Canada") {
+                nationImage = "https://i.imgur.com/L6KtEgH.png";
+            }
+            if (nation === "Italy") {
+                nationImage = "https://s3.amazonaws.com/files.d20.io/images/381471436/fiJ0rwjzpRfcqQz2xsmi4w/thumb.png?1708653378";
+            }
+
+
 
             let periodText = values.period + " ";
             if (periodText === "Any ") {periodText = ""};
