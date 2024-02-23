@@ -35,7 +35,7 @@ input[type="hidden"][name="attr_nation"][value="Soviet Union"] ~ .mysheet {
     background-color: red;
 }
 input[type="hidden"][name="attr_nation"][value="UK"] ~ .mysheet {
-    background-color: #0E2A7A;
+    background-color: #0A2065;
 }
 input[type="hidden"][name="attr_nation"][value="Canada"] ~ .mysheet {
   background-color: #C43C2C;
