@@ -35,14 +35,6 @@
             <h3>Attributes</h3>
             <label>Track:</label><input type="text" name="attr_track">
             <label>Armour Value:</label><input type="text" name="attr_armour">
-            <label for="attr_movement">Movement:</label>
-            <select name="attr_movement">
-                <option value="" selected disabled hidden>Choose here</option>
-                <option value="Foot">Foot</option>
-                <option value="Motorized">Motorized</option>
-            </select>  
-
-
             <label>Range (Artillery):</label><input type="number" name="attr_range">
             <label>Barrage (Artillery):</label><input type="number" name="attr_barrage">
 
@@ -57,6 +49,8 @@
           </div>
     </div>    
     <h3>Traits</h3>
+    <label>Leg:</label><input type="checkbox" name="attr_leg" value="1">
+    <label>Towed:</label><input type="checkbox" name="attr_towed" value="1">
     <label>Armoured Infantry:</label><input type="checkbox" name="attr_armouredinf" value="1">
     <label>Rare Unit:</label><input type="checkbox" name="attr_rare" value="1">
     <label>Self Propelled Artillery:</label><input type="checkbox" name="attr_spa" value="1">
@@ -211,6 +205,14 @@
             
             let traits = [];
             let traitInfo = [];
+            if (values.towed === "1") {
+                traits.push("Towed Artillery");
+                traitInfo.push("May not Move and Fire in same turn");
+            };
+            if (values.leg === "1") {
+                traits.push("Leg Infantry")
+                traitInfo.push("Road Movement limited to 3 Hexes. Normally Can't Evade");
+            };
             if (values.armouredinf === "1") {
                 traits.push("Armoured Infantry");
                 traitInfo.push("Counts as an Armoured Unit. Tactical Movement of 2");
