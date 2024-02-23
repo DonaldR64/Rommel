@@ -56,10 +56,10 @@
           </div>
     </div>    
     <h3>Traits</h3>
-    <label>Armoured Infantry:</label><input type="checkbox" name="attr_ai" value="1">
+    <label>Armoured Infantry:</label><input type="checkbox" name="attr_armouredinf" value="1">
     <label>Rare Unit:</label><input type="checkbox" name="attr_rare" value="1">
     <label>Self Propelled Artillery:</label><input type="checkbox" name="attr_spa" value="1">
-    <label>Infantry Support:</label><input type="checkbox" name="attr_is" value="1">
+    <label>Infantry Support:</label><input type="checkbox" name="attr_infsupport" value="1">
     <label>Rocket Artillery:</label><input type="checkbox" name="attr_rockets" value="1">
     <label>Recon:</label><input type="checkbox" name="attr_recon" value="1">
     <label>Cavalry:</label><input type="checkbox" name="attr_cav" value="1">
@@ -179,8 +179,8 @@
         setAttrs({sheetTab:"display"});
     });
 
-    on("change:attrs sheet:opened", function() { 
-        getAttrs(["nation","period","ai","rare","spa","is","rockets","recon","cav","pioneer","unreliable"], function(values) {
+    on("sheet:opened", function() { 
+        getAttrs(["nation","period","armouredinf","rare","spa","infsupport","rockets","recon","cav","pioneer","unreliable"], function(values) {
             let nation = values.nation;
             let nationImage = "";
 
@@ -196,7 +196,7 @@
             
             let traits = [];
             let traitInfo = [];
-            if (values.ai === "1") {
+            if (values.armouredinf === "1") {
                 traits.push("Armoured Infantry");
                 traitInfo.push("Counts as Armoured<br>Tactical Movement of 2");
             };
@@ -222,8 +222,7 @@
             };
             if (values.cav === "1") {
                 traits.push("Cavalry")
-                traitInfo.push("An infantry unit that may move 2 squares in a tactical
-                phase, 6 by road movement, and may evade.")
+                traitInfo.push("An infantry unit that may move 2 squares in a tactical phase, 6 by road movement, and may evade.")
             };
             if (values.pioneer === "1") {
                 traits.push("Pioneer")
@@ -231,8 +230,7 @@
             };
             if (values.unreliable === "1") {
                 traits.push("Unreliable Unit");
-                traitInfo.push("Roll at the end of any phase in which it moved more
-                than 1 square. On a 6 it takes one loss.")
+                traitInfo.push("Roll at the end of any phase in which it moved more than 1 square. On a 6 it takes one loss.")
             };
 
             let traitsDisplay = "Off";
