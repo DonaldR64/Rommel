@@ -1,5 +1,5 @@
 const Rommel = (() => {
-    const version = "2024.2.28"
+    const version = "2024.2.29"
 
     if (!state.Rommel || state.Rommel == []) {state.Rommel = {}};
 
