@@ -4,13 +4,17 @@ const Rommel = (() => {
     if (!state.Rommel || state.Rommel == []) {state.Rommel = {}};
 
     const pageInfo = {name: "",page: "",gridType: "",scale: 0,width: 0,height: 0};
-
-
+    const TerrainNames = ["Desert Town","Desert Hill","Woods","Water"];
+    const Axis = ["German","Italian","Japanese"];
+    
 
 
     const UnitArray = {};
     const EdgeArray = [];
     const GridMap = [];
+    const SupplyPoints = ["",""];
+    const Objectives = [[],[]];
+
 
     class Point {
         constructor(x,y) {
@@ -21,6 +25,10 @@ const Rommel = (() => {
 
     class Grid {
         constructor(c,r) {
+            let gridCoord = {
+                column: c,
+                row: r,
+            }
             let x = (c*210) + 105;
             let y = (r*210) + 105;
             let pt = new Point(x,y);
@@ -32,25 +40,42 @@ const Rommel = (() => {
             if (x<EdgeArray[0] || x>EdgeArray[1]) {
                 label = "Offboard";
             } else {
-                let e = Math.floor(EdgeArray[0]/210);
-                numLabel = (c-e).toString();
-                textLabel = labels[r];
-                label = textLabel + numLabel;
-                markerNum = (numLabel === "1") ? true:false;
-                markerText = (textLabel === "A") ? true:false;
+                label = gridReference(gridCoord)
+                markerNum = (label.charAt(0) === "A") ? true:false;
+                markerText = (label.charAt(1) === "1" && label.length === 2) ? true:false;
             }
-            this.markerNum = markerNum;
-            this.markerText = markerText;
             this.label = label;            
             this.centre = pt;
             this.terrain = [];
             this.tokenIDs = [];
-            this.objectives = [];
+            this.markerNum = markerNum;
+            this.markerText = markerText;
         }
     }
 
+    const pointToGrid = (point) => {
+        let gridCoord = {
+            column: Math.round((Math.round(point.x) - 105) / 210),
+            row: Math.round((Math.round(point.y) - 105) / 210),
+        }
+        return gridCoord;
+    }
 
+    const gridReference = (gridCoord) => {
+        let labels = ["A","B","C","D","E","F","G","H","I","J","K","L"];
+        let textLabel = labels[gridCoord.row];
+        let e = Math.floor(EdgeArray[0]/210);
+        let numLabel = (gridCoord.column-e).toString();
+        let label = textLabel + numLabel;
+        return label;
+    }
 
+    const pointDistance = (pt1,pt2) => {
+        let x2 = (pt2.x - pt1.x) * (pt2.x - pt1.x);
+        let y2= (pt2.y - pt1.y) * (pt2.y - pt1.y);
+        let distance = Math.sqrt(x2 + y2);
+        return distance;
+    }
 
 
 
@@ -58,7 +83,6 @@ const Rommel = (() => {
 
     const BuildMap = () => {
         LoadPage();
-        //AddTerrain();
         //builds a grid map, using larger squares of 3 squares each
         let columns = Math.floor(pageInfo.width/210);
         let rows = Math.floor(pageInfo.height/210);
@@ -73,6 +97,9 @@ const Rommel = (() => {
             PlaceGridLines();
             state.Rommel.mapIDs.push(Campaign().get("playerpageid"));
         }
+        AddTerrain();
+
+
 
 
 
@@ -152,7 +179,7 @@ const Rommel = (() => {
         _.each(GridMap,column => {
             _.each(column,square => {
                 let text;
-                if (square.markerText === true) {
+                if (square.markerNum === true) {
                     text = square.label.replace("A","");
                     let y = square.centre.y - 70;
                     obj = createObj("text",{
@@ -166,7 +193,7 @@ const Rommel = (() => {
                     });
                     toFront(obj);
                 }
-                if (square.markerNum === true) {
+                if (square.markerText === true) {
                     text = square.label.replace("1","");
                     let x = square.centre.x - 70;
                     obj = createObj("text",{
@@ -183,6 +210,39 @@ const Rommel = (() => {
             })
         });
     }
+
+    const AddTerrain = () => {
+        let mapObjs = findObjs({type: 'graphic',layer:"map"});
+        _.each(mapObjs,mapObj => {
+            let name = mapObj.get("name");
+            let pt = new Point(mapObj.get("left"),mapObj.get("top"));
+            if (pt.x <= pageInfo.width && pt.y <= pageInfo.height) {
+                log(name)
+                let gridCoord = pointToGrid(pt);
+                if (GridMap[gridCoord.row][gridCoord.column]) {
+                    if (TerrainNames.includes(name)) {
+                        GridMap[gridCoord.row][gridCoord.column].terrain.push(name);
+                    }
+                    if (name.includes("Objective")) {
+                        let nation = name.replace(" Objective","");
+                        let player = (Axis.includes(nation)) ? 0:1;
+                        Objectives[player].push(gridCoord);
+                    }
+                    if (name.includes("Supply")) {
+                        let nation = name.replace(" Supply","");
+                        let player = (Axis.includes(nation)) ? 0:1;
+                        log(nation)
+                        log(pt)
+                        log(gridCoord)
+                        SupplyPoints[player] = gridCoord;
+                    }
+                }
+            } 
+        })
+    }
+
+
+
 
 
     const ClearState = () => {
@@ -201,11 +261,29 @@ const Rommel = (() => {
 
     }
 
+    const MapInfo = () => {
+        let AxisO = [];
+        for (let i=0;i<Objectives[0].length;i++) {
+            AxisO.push(gridReference(Objectives[0][i]));
+        }
+        sendChat("","Axis Objectives at: " + AxisO.toString());
+        sendChat("","Axis Supply Point at: " + gridReference(SupplyPoints[0]));
+        let AlliedO = [];
+        for (let i=0;i<Objectives[1].length;i++) {
+            AlliedO.push(gridReference(Objectives[1][i]));
+        }
+        sendChat("","Allied Objectives at: " + AlliedO.toString())
+        sendChat("","Allied Supply Point at: " + gridReference(SupplyPoints[1]));
+
+    }
+
+
+
+
 
 
     const ClearMarkers = () => {
         let paths = findObjs({type: 'path',layer:"map"});
-log(paths)
         _.each(paths,path => {
             if (path.get("fill") === "#000000") {
                 path.remove();
@@ -213,12 +291,9 @@ log(paths)
         })
         let markers = findObjs({type: 'text', layer: "map"});
         _.each(markers,mark => {
-            mark.remove();
-            /*
             if (mark.get("font_family") === "Candal") {
                 mark.remove();
             }
-            */
         })
     }
 
@@ -251,8 +326,9 @@ log(paths)
             case '!ClearMarkers':
                 ClearMarkers();
                 break;
-
-                                        
+            case '!MapInfo':
+                MapInfo();
+                break;              
         }
     };
 
