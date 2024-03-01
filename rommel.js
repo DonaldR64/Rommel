@@ -662,6 +662,11 @@ log(gridCoord)
             players: {}, //indexed by playerID, indicates which side they're on
             units: {}, //used in rebuild, has elementID, index by unitID
             elements: {}, //used in rebuild, has element names and colours, indexed by elementID
+            turn: 0,
+            maxTurns: 0,
+            startingPlayer: 0,
+            secondPlayer: 1,
+            ops: [0,0],
         }
         let tokens = findObjs({
             _pageid: Campaign().get("playerpageid"),
@@ -819,6 +824,61 @@ log(gridCoord)
         sendChat("",elementName + " Created");
     }
 
+    const StartGame = (msg) => {
+        let Tag = msg.content.split(";");
+        let startingPlayer = parseInt(Tag[1]);
+        let maxTurns = parseInt(Tag[2]);
+        let axisOps = parseInt(Tag[3]);
+        let alliedOps = parseInt(Tag[4]);
+
+        state.Rommel.info.startingPlayer = startingPlayer;
+        state.Rommel.info.secondPlayer = (startingPlayer === 0) ? 1:0;
+        state.Rommel.info.maxTurns = maxTurns;
+        state.Rommel.info.turn = 0;
+        state.Rommel.info.ops[0] = axisOps;
+        state.Rommel.info.ops[1] = alliedOps;
+
+        NewTurn();
+    }
+
+    const NewTurn = () => {
+        state.Rommel.info.turn++;
+        let turn = state.Rommel.info.turn;
+        let maxTurns = state.Rommel.info.maxTurns;
+        if (turn > maxTurns) {
+            SetupCard("End of Game","","Neutral");
+            outputCard.body.push("Game ends on Turns");
+            PrintCard();
+            return;
+        }
+        let even = (turn % 2  === 0) ? true:false;
+        let startingPlayer = state.Rommel.info.startingPlayer;
+        let secondPlayer = state.Rommel.info.secondPlayer;
+        let currentPlayer = (even === false) ? startingPlayer:secondPlayer;
+        SetupCard("Turn " + turn,"",state.Rommel.info.nations[currentPlayer][0]);
+
+        
+
+
+
+
+
+
+
+
+
+
+        PrintCard();
+
+
+
+
+    }
+
+
+
+
+
 
 
 
@@ -911,6 +971,14 @@ log(gridCoord)
             case '!TokenInfo':
                 TokenInfo(msg);
                 break;
+            case '!StartGame':
+                StartGame(msg);
+                break;
+            case '!NewTurn':
+                NewTurn();
+                break;
+
+
         }
     };
 
