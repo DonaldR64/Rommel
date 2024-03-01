@@ -856,28 +856,49 @@ log(gridCoord)
         let secondPlayer = state.Rommel.info.secondPlayer;
         let currentPlayer = (even === false) ? startingPlayer:secondPlayer;
         SetupCard("Turn " + turn,"",state.Rommel.info.nations[currentPlayer][0]);
-
-        
-
-
-
-
-
-
-
-
-
-
+        ButtonInfo("Standard OPS Roll","!OPS;" + currentPlayer);
+        ButtonInfo("Reset OPS","!ResetOPS;" + currentPlayer);
+        ResetUnits(currentPlayer);
         PrintCard();
-
-
-
-
     }
 
+    const ResetUnits = (player) => {
+        _.each(UnitArray,unit => {
+            if (unit.player === player) {
+                unit.token.set("tint_color","transparent");
+            }
+        })
+    }
 
-
-
+    const OPS = (msg) => {
+        let player = parseInt(msg.content.split(";")[1]);
+        let startOPS = parseInt(state.Rommel.info.ops[player]);
+        let nation = state.Rommel.info.nations[player][0]
+        SetupCard("OPS Rolls","",nation);
+        let newOPS = 0;
+        let dd = "";
+        let rolls = [];
+        for (let i=0;i<6;i++) {
+            let roll = randomInteger(6);
+            rolls.push(roll);
+            if (roll > 1) {newOPS++};
+        }
+        rolls.sort();
+        for (let i=0;i<6;i++) {
+            let roll = rolls[i];
+            dd += DisplayDice(roll,Nations[nation].dice,24);
+        }
+        let extra = "";
+        let endOPS = Math.min(10,startOPS + newOPS);
+        if (endOPS === 10) {extra = " (Max)"};
+        state.Rommel.info.ops[player] = endOPS;
+        outputCard.body.push(dd);
+        outputCard.body.push("Starting OPS: " + startOPS);
+        outputCard.body.push(newOPS + " OPS Gained");
+        outputCard.body.push("[hr]");
+        outputCard.body.push("OPS Total: " + endOPS + extra);
+        PrintCard();
+    }
 
 
 
@@ -977,8 +998,9 @@ log(gridCoord)
             case '!NewTurn':
                 NewTurn();
                 break;
-
-
+            case '!OPS':
+                OPS(msg);
+                break;
         }
     };
 
