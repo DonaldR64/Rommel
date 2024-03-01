@@ -702,7 +702,7 @@ log(gridCoord)
         SetupCard("Map Notes","","Neutral");
         for (let p=0;p<2;p++) {
             let nations = state.Rommel.info.nations[p].toString();
-            nations = nations.replace(","," + ");
+            nations = nations.replace(/,/g , " + ");
             outputCard.body.push("[U]" + nations + "[/u]");
             outputCard.body.push("Objectives: " + objectives[p].toString());
             outputCard.body.push("Supply Point: " + gridReference(SupplyPoints[p]));
@@ -856,8 +856,8 @@ log(gridCoord)
         let secondPlayer = state.Rommel.info.secondPlayer;
         let currentPlayer = (even === false) ? startingPlayer:secondPlayer;
         SetupCard("Turn " + turn,"",state.Rommel.info.nations[currentPlayer][0]);
-        ButtonInfo("Standard OPS Roll","!OPS;" + currentPlayer);
-        ButtonInfo("Reset OPS","!ResetOPS;" + currentPlayer);
+        ButtonInfo("Standard OPS Roll","!OPS;" + currentPlayer + ";Standard");
+        ButtonInfo("Reset OPS","!OPS;" + currentPlayer + ";Reset");
         ResetUnits(currentPlayer);
         PrintCard();
     }
@@ -871,23 +871,25 @@ log(gridCoord)
     }
 
     const OPS = (msg) => {
-        let player = parseInt(msg.content.split(";")[1]);
+        let Tag = msg.content.split(";");
+        let player = Tag[1];
+        let mode = Tag[2];
+        let dice = (mode === "Standard") ? 6:3;
         let startOPS = parseInt(state.Rommel.info.ops[player]);
         let nation = state.Rommel.info.nations[player][0]
-        SetupCard("OPS Rolls","",nation);
+        SetupCard("OPS Rolls",dice + " Dice",nation);
         let newOPS = 0;
-        let dd = "";
+        let dd = [];
         let rolls = [];
-        for (let i=0;i<6;i++) {
+        for (let i=0;i<dice;i++) {
             let roll = randomInteger(6);
             rolls.push(roll);
+            dd.push(DisplayDice(roll,Nations[nation].dice,24))
             if (roll > 1) {newOPS++};
         }
-        rolls.sort();
-        for (let i=0;i<6;i++) {
-            let roll = rolls[i];
-            dd += DisplayDice(roll,Nations[nation].dice,24);
-        }
+        dd.sort();
+        dd = dd.toString();
+        dd = dd.replace(/,/g , " ");
         let extra = "";
         let endOPS = Math.min(10,startOPS + newOPS);
         if (endOPS === 10) {extra = " (Max)"};
@@ -897,8 +899,17 @@ log(gridCoord)
         outputCard.body.push(newOPS + " OPS Gained");
         outputCard.body.push("[hr]");
         outputCard.body.push("OPS Total: " + endOPS + extra);
+        if (mode === "Reset") {
+            outputCard.body.push("Board Reset");
+            //ResetBoard(player);
+        }
+        outputCard.body.push("[hr]");
+        outputCard.body.push("Active Player may now play any Event Cards");
+
         PrintCard();
     }
+
+
 
 
 
