@@ -187,7 +187,9 @@ const Rommel = (() => {
 
             let location = new Point(token.get("left"),token.get("top"));
             let gridCoord = pointToGrid(location);
-
+log(name)
+log(location)
+log(gridCoord)
 
             this.id = id;
             this.token = token;
@@ -712,8 +714,10 @@ const Rommel = (() => {
             sendChat("","Not in Array");
         } else {
             let element = ElementArray[unit.elementID];
+            let grid = GridMap[unit.location.row][unit.location.column];
+
             SetupCard(unit.name,element.name,unit.nation);
-            outputCard.body.push(unit.type + " Unit");
+            outputCard.body.push(unit.type + " Unit - " + grid.label);
             let hp = parseInt(unit.token.get("bar1_value"));
             let max = parseInt(unit.token.get("bar1_max"));
             let out = "Strength: " + hp;
@@ -744,10 +748,15 @@ const Rommel = (() => {
                 outputCard.body.push("Traits: " + unit.traits);
             }
 
-            let grid = GridMap[unit.location.column][unit.location.row];
-            let terrain = grid.terrain.toString();
-            if (!terrain) {terrain = "Open"};
-            outputCard.body.push("In " + terrain + " Terrain");
+            let terrain = "In " + grid.terrain.toString() + " Terrain"
+            if (grid.terrain.length === 0) {
+                if (grid.label === "Offboard") {
+                    terrain = "Offboard";
+                } else {
+                    terrain = "In the Open";
+                }
+            }
+            outputCard.body.push(terrain);
             PrintCard();
         }
     }
@@ -829,7 +838,40 @@ const Rommel = (() => {
     }
 
 
+
+    const changeGraphic = (tok,prev) => {
+        if (tok.get('subtype') === "token") {
+            let unit = UnitArray[tok.id];
+            if (unit) {
+                if ((tok.get("left") !== prev.left) || (tok.get("top") !== prev.top)) {
+                    let newLocation = new Point(tok.get("left"),tok.get("top"));
+                    newLocation = pointToGrid(newLocation);
+                    if (newLocation.column !== unit.location.column || newLocation.row !== unit.location.row) {
+                        log(tok.get("name") + " moving");
+                        unit.location = newLocation;
+                    }
+                };
+                if (tok.get("rotation") !== prev.rotation) {
+                    tok.set("rotation",prev.rotation);
+                }
+            }
+        };
+    };
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     const handleInput = (msg) => {
         if (msg.type !== "api") {
@@ -874,7 +916,7 @@ const Rommel = (() => {
 
     const registerEventHandlers = () => {
         on('chat:message', handleInput);
-        //on('change:graphic',changeGraphic);
+        on('change:graphic',changeGraphic);
     };
 
     on('ready', () => {
