@@ -142,6 +142,8 @@ const Rommel = (() => {
             let armour = parseInt(attributeArray.armour) || 0;
             let range = parseInt(attributeArray.range) || 0;
             let artillery = parseInt(attributeArray.barrage) || 0;
+            let traits = attributeArray.traits || " ";
+            traits = traits.toString();
 
             let type = attributeArray.type;
             let track = attributeArray.track;
@@ -198,6 +200,7 @@ const Rommel = (() => {
             this.armour = armour;
             this.range = range;
             this.artillery = artillery;
+            this.traits = traits;
 
             this.location = gridCoord;
 
@@ -735,7 +738,7 @@ const Rommel = (() => {
                 let range = unit.range;
                 let artillery = unit.artillery;
                 outputCard.body.push("Artillery Range: " + range);
-                outputCard.body.push("Artillery Strength: " + artillery);
+                outputCard.body.push("Barrage Value: " + artillery);
             }
             let grid = GridMap[unit.location.column][unit.location.row];
             let terrain = grid.terrain.toString();
