@@ -139,6 +139,9 @@ const Rommel = (() => {
             let attributeArray = AttributeArray(char.id);
             let nation = attributeArray.nation;
             let player = (Axis.includes(nation)) ? 0:1;
+            let armour = parseInt(attributeArray.armour) || 0;
+            let range = parseInt(attributeArray.range) || 0;
+            let artillery = parseInt(attributeArray.barrage) || 0;
 
             let type = attributeArray.type;
             let track = attributeArray.track;
@@ -179,6 +182,10 @@ const Rommel = (() => {
                 show_tooltip: true,
             });
 
+            let location = new Point(token.get("left"),token.get("top"));
+            let gridCoord = pointToGrid(location);
+
+
             this.id = id;
             this.token = token;
             this.name = name;
@@ -187,6 +194,12 @@ const Rommel = (() => {
             this.player = player;
             this.elementID = elementID;
             this.track = track;
+            this.armour = armour;
+            this.range = range;
+            this.artillery = artillery;
+
+            this.location = gridCoord;
+
             UnitArray[id] = this;
 
 
@@ -311,7 +324,6 @@ const Rommel = (() => {
 
     const DisplayDice = (roll,tablename,size) => {
         roll = roll.toString();
-log(tablename)
         if (!tablename) {
             tablename = "Neutral";
         }
@@ -609,13 +621,7 @@ log(tablename)
         if (Tag.length === 1) {
             let playerID = msg.playerid;
             let nation = "Neutral";
-log(playerID)
-
-
             if (state.Rommel.info.players[playerID] === undefined) {
-log("None or Undefined")
-log(state.Rommel.info.players[playerID])
-
                 if (msg.selected) {
                     let id = msg.selected[0]._id;
                     if (id) {
@@ -627,15 +633,9 @@ log(state.Rommel.info.players[playerID])
                     }
                 }
             } else {
-log("In Here")
-log(state.Rommel.info.players[playerID])
-log(state.Rommel.info.nations[player])
                 player = parseInt(state.Rommel.info.players[playerID]);
                 nation = state.Rommel.info.nations[player][0];
             }
-log(nation)
-
-
             let res = "/direct " + DisplayDice(roll,Nations[nation].dice,40);
             sendChat("player|" + playerID,res);
         } else {
@@ -692,6 +692,52 @@ log(nation)
         }
         PrintCard();
     }
+
+    const TokenInfo = (msg) => {
+        if (!msg.selected) {return};
+        let id = msg.selected[0]._id;
+        let unit = UnitArray[id];
+        if (!unit) {
+            sendChat("","Not in Array");
+        } else {
+            SetupCard(unit.name,"",unit.nation);
+            let hp = parseInt(unit.token.get("bar1_value"));
+            let max = parseInt(unit.token.get("bar1_max"));
+            let out = "Strength: " + hp;
+            if (hp === max) {
+                out += " (Max)";
+            } 
+            outputCard.body.push(out);
+            let combatValue = unit.track[hp];
+            if (combatValue.attack === combatValue.defense) {
+                outputCard.body.push("Combat Value: " + combatValue.attack);
+            } else {
+                outputCard.body.push("Attack Combat Value: " + combatValue.attack);
+                outputCard.body.push("Defense Combat Value: " + combatValue.defense);
+            }
+
+
+            if (unit.type === "Armour") {
+                let av = unit.armour;
+                outputCard.body.push("Armour Value: " + av);
+            }
+            if (unit.type === "Artillery") {
+                let range = unit.range;
+                let artillery = unit.artillery;
+                outputCard.body.push("Artillery Range: " + range);
+                outputCard.body.push("Artillery Strength: " + artillery);
+            }
+            let grid = GridMap[unit.location.column][unit.location.row];
+            let terrain = grid.terrain.toString();
+            if (!terrain) {terrain = "Open"};
+            outputCard.body.push("In " + terrain + " Terrain");
+            PrintCard();
+        }
+    }
+
+
+
+
 
     const UnitCreation = (msg) => {
         let Tag = msg.content.split(";");
@@ -769,6 +815,9 @@ log(nation)
                 break;
             case '!RollD6':
                 RollD6(msg);
+                break;
+            case '!TokenInfo':
+                TokenInfo(msg);
                 break;
         }
     };
