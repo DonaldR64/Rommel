@@ -5,8 +5,8 @@ const Rommel = (() => {
 
     const pageInfo = {name: "",page: "",gridType: "",scale: 0,width: 0,height: 0};
     const TerrainNames = ["Desert Town","Desert Hill","Woods","Water"];
-    const Axis = ["German","Italian","Japanese"];
-    
+    const Axis = ["Germany","Italy","Japan"];
+
     const Colours = {
         red: "#ff0000",
         blue: "#00ffff",
@@ -14,16 +14,13 @@ const Rommel = (() => {
         green: "#00ff00",
         purple: "#800080",
         black: "#000000",
+        darkblue: "#0000ff",
     }
     let outputCard = {title: "",subtitle: "",nation: "",body: [],buttons: [],};
 
-
-    const UnitArray = {};
-    const EdgeArray = [];
-    const GridMap = [];
-    const SupplyPoints = ["",""];
-    const Objectives = [[],[]];
-    const currentNations = [[],[]];
+    var UnitArray = {};
+    var ElementArray = {};
+    var EdgeArray,GridMap,SupplyPoints,Objectives;
 
     const Nations = {
         "Soviet Union": {
@@ -126,6 +123,114 @@ const Rommel = (() => {
             this.markerText = markerText;
         }
     }
+
+    class Unit {
+        constructor(id,elementID) {
+            let token = findObjs({_type:"graphic", id: id})[0];
+            let char = getObj("character", token.get("represents")); 
+            let name = char.get("name");
+            let attributeArray = AttributeArray(char.id);
+            let nation = attributeArray.nation;
+            let player = (Axis.includes(nation)) ? 0:1;
+
+            let type = attributeArray.type;
+            let track = attributeArray.track;
+            track = track.split("/");
+            track = track.map(s => {
+                let att,def,s2;
+                if (s.includes("-")) {
+                    s2 = s.split("-");
+                    att = parseInt(s2[0]);
+                    def = parseInt(s2[1]);
+                } else {
+                    att = def = parseInt(s);
+                }
+                let info = {
+                    attack: att,
+                    defense: def,
+                }
+                return info;
+            })
+            track.push(0);
+            track.reverse();
+
+            let hp = track.length - 1;
+            name = name.replace(nation + " ","");
+
+            let element = ElementArray[elementID];
+            token.set({
+                name: name,
+                aura1_color: element.colour,
+                aura1_radius: 50,
+                aura1_square: true, 
+                tint_color: "transparent",
+                showplayers_bar1: true,
+                bar1_value: hp,
+                bar1_max: hp,
+                showname: true,
+                tooltip: element.name,
+                show_tooltip: true,
+            });
+
+            this.id = id;
+            this.token = token;
+            this.name = name;
+            this.type = type;
+            this.nation = nation;
+            this.player = player;
+            this.elementID = elementID;
+            this.track = track;
+            UnitArray[id] = this;
+
+
+
+
+        }
+
+
+    }
+
+
+    class Element {
+        constructor(id,name,nation) {
+            let player = (Axis.includes(nation)) ? 0:1;
+            let elementColours = [[Colours.red,Colours.black,Colours.darkblue,Colours.yellow],[Colours.blue,Colours.green,Colours.purple,Colours.white]];
+            let elementColour;
+            let hq = false;
+            if (name.includes("HQ") || name.includes("Corps")) {
+                elementColour = "transparent";
+                hq = true;
+            } else {
+                elementColour = elementColours[player][parseInt(state.Rommel.info.elements[player])];
+                state.Rommel.info.elements[player]++;
+            }
+            this.name = name;
+            this.id = id;
+            this.player = player;
+            this.nation = nation;
+            this.colour = elementColour;
+            this.hq = hq;
+            ElementArray[id] = this;
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     const pointToGrid = (point) => {
         let gridCoord = {
@@ -308,6 +413,9 @@ const Rommel = (() => {
 
     const BuildMap = () => {
         LoadPage();
+        GridMap = [];
+        SupplyPoints = ["",""];
+        Objectives = [[],[]];
         //builds a grid map, using larger squares of 3 squares each
         let columns = Math.floor(pageInfo.width/210);
         let rows = Math.floor(pageInfo.height/210);
@@ -338,6 +446,7 @@ const Rommel = (() => {
         pageInfo.height = pageInfo.page.get("height")*70;
         let edges = findObjs({_pageid: Campaign().get("playerpageid"),_type: "path",layer: "map",stroke: "#d5a6bd",});    
         let c = pageInfo.width/2;
+        EdgeArray = [];
         for (let i=0;i<edges.length;i++) {
             EdgeArray.push(edges[i].get("left"));
         }
@@ -439,57 +548,80 @@ const Rommel = (() => {
     const AddTerrain = () => {
         let mapObjs = findObjs({type: 'graphic',layer:"map"});
         _.each(mapObjs,mapObj => {
-            let name = mapObj.get("name");
-            let pt = new Point(mapObj.get("left"),mapObj.get("top"));
-            if (pt.x <= pageInfo.width && pt.y <= pageInfo.height) {
-                let gridCoord = pointToGrid(pt);
-                if (GridMap[gridCoord.row][gridCoord.column]) {
-                    if (TerrainNames.includes(name)) {
-                        GridMap[gridCoord.row][gridCoord.column].terrain.push(name);
-                    }
-                    if (name.includes("Objective")) {
-                        let nation = name.replace(" Objective","");
-                        if (nation) {
-                            let player = (Axis.includes(nation)) ? 0:1;
-                            if (currentNations[player].includes(nation) === false) {
-                                currentNations[player].push(nation);
+            let mapChar = getObj("character", mapObj.get("represents")); 
+            if (mapChar) {
+                let name = mapChar.get("name");
+                let nation = Attribute(mapChar,"nation");
+                let pt = new Point(mapObj.get("left"),mapObj.get("top"));
+                if (pt.x <= pageInfo.width && pt.y <= pageInfo.height) {
+                    let gridCoord = pointToGrid(pt);
+                    if (GridMap[gridCoord.row][gridCoord.column]) {
+                        if (TerrainNames.includes(name)) {
+                            GridMap[gridCoord.row][gridCoord.column].terrain.push(name);
+                        }
+                        if (name.includes("Objective")) {
+                            if (nation) {
+                                let player = (Axis.includes(nation)) ? 0:1;
+                                if (state.Rommel.info.nations[player].includes(nation) === false) {
+                                    state.Rommel.info.nations[player].push(nation);
+                                }
+                                Objectives[player].push(gridCoord);
                             }
-                            Objectives[player].push(gridCoord);
+                        }
+                        if (name.includes("Supply")) {
+                            if (nation) {
+                                let player = (Axis.includes(nation)) ? 0:1;
+                                if (state.Rommel.info.nations[player].includes(nation) === false) {
+                                    state.Rommel.info.nations[player].push(nation);
+                                }
+                                SupplyPoints[player] = gridCoord;
+                            }
                         }
                     }
-                    if (name.includes("Supply")) {
-                        let nation = name.replace(" Supply","");
-                        if (nation) {
-                            let player = (Axis.includes(nation)) ? 0:1;
-                            if (currentNations[player].includes(nation) === false) {
-                                currentNations[player].push(nation);
-                            }
-                            SupplyPoints[player] = gridCoord;
-                        }
-                    }
-                }
-            } 
+                } 
+            }
         })
     }
 
-
+    const stringGen = () => {
+        let text = "";
+        let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        for (let i = 0; i < 6; i++) {
+            text += possible.charAt(Math.floor(randomInteger(possible.length)));
+        }
+        return text;
+    };
 
 
 
     const ClearState = () => {
         sendChat("","State Cleared");
         state.Rommel.info = {
-
-
-
-
-
+            elements: [0,0],
+            nations: [[],[]],
 
         }
 
+        let tokens = findObjs({type: "graphic",layer: "objects"});
+        _.each(tokens,token => {
+            token.set({
+                name: "",
+                aura1_color: "transparent",
+                aura1_radius: 0,
+                aura1_square: true, 
+                tint_color: "transparent",
+                showplayers_bar1: true,
+                bar1_value: 0,
+                bar1_max: 0,
+                showname: true,
+                tooltip: "",
+                show_tooltip: true,
+            });
+        })
 
 
 
+        BuildMap();
     }
 
     const MapInfo = () => {
@@ -501,7 +633,9 @@ const Rommel = (() => {
         }
         SetupCard("Map Notes","","Neutral");
         for (let p=0;p<2;p++) {
-            outputCard.body.push("[U]" + currentNations[p][0] + "[/u]");
+            let nations = state.Rommel.info.nations[p].toString();
+            nations = nations.replace(","," + ");
+            outputCard.body.push("[U]" + nations + "[/u]");
             outputCard.body.push("Objectives: " + objectives[p].toString());
             outputCard.body.push("Supply Point: " + gridReference(SupplyPoints[p]));
             if (p===0){outputCard.body.push("[hr]")};
@@ -509,7 +643,24 @@ const Rommel = (() => {
         PrintCard();
     }
 
-
+    const UnitCreation = (msg) => {
+        let Tag = msg.content.split(";");
+        let elementName = Tag[1];
+        let elementID = stringGen();
+        let refToken = findObjs({_type:"graphic", id: msg.selected[0]._id})[0];
+        let refChar = getObj("character", refToken.get("represents")); 
+        let nation = Attribute(refChar,"nation");
+        let player = (Axis.includes(nation)) ? 0:1;
+        if (state.Rommel.info.nations[player].includes(nation) === false) {
+            state.Rommel.info.nations[player].push(nation);
+        }
+        let element = new Element(elementID,elementName,nation);
+        for (let i=0;i<msg.selected.length;i++) {
+            let id = msg.selected[i]._id
+            let unit = new Unit(id,elementID);
+        }
+        sendChat("",elementName + " Created");
+    }
 
 
 
@@ -542,13 +693,14 @@ const Rommel = (() => {
             case '!Dump':
                 log("STATE");
                 log(state.Rommel);
-                log(currentNations)
                 log("Edge Array")
                 log(EdgeArray)
                 log("Grid Map");
                 log(GridMap)
                 log("Unit Array");
                 log(UnitArray)
+                log("Element Array");
+                log(ElementArray);
                 break;
             case '!ClearState':
                 ClearState();
@@ -561,7 +713,11 @@ const Rommel = (() => {
                 break;
             case '!MapInfo':
                 MapInfo();
-                break;              
+                break;  
+            case '!UnitCreation':
+                UnitCreation(msg);    
+                break;
+
         }
     };
 
