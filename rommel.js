@@ -708,7 +708,9 @@ const Rommel = (() => {
         if (!unit) {
             sendChat("","Not in Array");
         } else {
-            SetupCard(unit.name,"",unit.nation);
+            let element = ElementArray[unit.elementID];
+            SetupCard(unit.name,element.name,unit.nation);
+            outputCard.body.push(unit.type + " Unit");
             let hp = parseInt(unit.token.get("bar1_value"));
             let max = parseInt(unit.token.get("bar1_max"));
             let out = "Strength: " + hp;
