@@ -168,9 +168,10 @@ const Rommel = (() => {
             name = name.replace(nation + " ","");
 
             let element = ElementArray[elementID];
+            let elementColour = element.colour || "transparent";
             token.set({
                 name: name,
-                aura1_color: element.colour,
+                aura1_color: elementColour,
                 aura1_radius: 50,
                 aura1_square: true, 
                 tint_color: "transparent",
@@ -201,7 +202,7 @@ const Rommel = (() => {
             this.location = gridCoord;
 
             UnitArray[id] = this;
-
+            state.Rommel.info.units[id] = elementID; //used in rebuild
 
 
 
@@ -212,18 +213,22 @@ const Rommel = (() => {
 
 
     class Element {
-        constructor(id,name,nation) {
+        constructor(id,name,nation,colour) {
             let player = (Axis.includes(nation)) ? 0:1;
             let elementColours = [[Colours.red,Colours.black,Colours.darkblue,Colours.yellow],[Colours.blue,Colours.green,Colours.purple,Colours.white]];
-            let elementColour;
+            let elementColour = colour;
             let hq = false;
-            if (name.includes("HQ") || name.includes("Corps")) {
-                elementColour = "transparent";
-                hq = true;
-            } else {
-                elementColour = elementColours[player][parseInt(state.Rommel.info.elements[player])];
-                state.Rommel.info.elements[player]++;
+            let elementNum = state.Rommel.info.elementNumbers[player];
+            if (!colour) {
+                if (name.includes("HQ") || name.includes("Corps")) {
+                    elementColour = "transparent";
+                    hq = true;
+                } else {
+                    elementColour = elementColours[player][elementNum] || "transparent";
+                    state.Rommel.info.elementNumbers[player]++;
+                }
             }
+
             this.name = name;
             this.id = id;
             this.player = player;
@@ -231,11 +236,12 @@ const Rommel = (() => {
             this.colour = elementColour;
             this.hq = hq;
             ElementArray[id] = this;
+            let elementInfo = {
+                name: name,
+                colour: elementColour,
+            }
+            state.Rommel.info.elements[id] = elementInfo;
         }
-
-
-
-
     }
 
 
@@ -451,7 +457,7 @@ const Rommel = (() => {
             state.Rommel.mapIDs.push(Campaign().get("playerpageid"));
         }
         AddTerrain();
-
+        RebuildArrays();
 
 
 
@@ -646,13 +652,18 @@ const Rommel = (() => {
     const ClearState = () => {
         sendChat("","State Cleared");
         state.Rommel.info = {
-            elements: [0,0],
+            elementNumbers: [0,0],
             nations: [[],[]],
             players: {}, //indexed by playerID, indicates which side they're on
-
+            units: {}, //used in rebuild, has elementID, index by unitID
+            elements: {}, //used in rebuild, has element names and colours, indexed by elementID
         }
-
-        let tokens = findObjs({type: "graphic",layer: "objects"});
+        let tokens = findObjs({
+            _pageid: Campaign().get("playerpageid"),
+            _type: "graphic",
+            _subtype: "token",
+            layer: "objects",
+        });
         _.each(tokens,token => {
             token.set({
                 name: "",
@@ -667,10 +678,7 @@ const Rommel = (() => {
                 tooltip: "",
                 show_tooltip: true,
             });
-        })
-
-
-
+        });
         BuildMap();
     }
 
@@ -735,7 +743,42 @@ const Rommel = (() => {
         }
     }
 
+    const RebuildArrays = () => {
+        let tokens = findObjs({
+            _pageid: Campaign().get("playerpageid"),
+            _type: "graphic",
+            _subtype: "token",
+            layer: "objects",
+        });
+        _.each(tokens,token => {
+            let char = getObj("character", token.get("represents")); 
+            if (char) {
 
+
+                let nation = Attribute(char,"nation");
+                let player = (Axis.includes(nation)) ? 0:1;
+                if (state.Rommel.info.nations[player].includes(nation) === false) {
+                    state.Rommel.info.nations[player].push(nation);
+                }
+                let elementID = state.Rommel.info.units[token.id];
+                if (elementID) {
+                    element = ElementArray[elementID];
+                    if (!element) {
+                        let elementName = state.Rommel.info.elements[elementID].name;
+                        let elementColour = state.Rommel.info.elements[elementID].colour;
+                        element = new Element(elementID,elementName,nation,elementColour);
+                    }
+                    let unit = new Unit(token.id,elementID);
+                }
+            }
+
+        });
+        log("Arrays Rebuilt")
+
+
+
+
+    }
 
 
 
@@ -789,8 +832,6 @@ const Rommel = (() => {
             case '!Dump':
                 log("STATE");
                 log(state.Rommel);
-                log("Edge Array")
-                log(EdgeArray)
                 log("Grid Map");
                 log(GridMap)
                 log("Unit Array");
