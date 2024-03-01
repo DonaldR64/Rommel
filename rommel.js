@@ -740,6 +740,10 @@ const Rommel = (() => {
                 outputCard.body.push("Artillery Range: " + range);
                 outputCard.body.push("Barrage Value: " + artillery);
             }
+            if (unit.traits !== " ") {
+                outputCard.body.push("Traits: " + unit.traits);
+            }
+
             let grid = GridMap[unit.location.column][unit.location.row];
             let terrain = grid.terrain.toString();
             if (!terrain) {terrain = "Open"};
