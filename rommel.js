@@ -30,6 +30,7 @@ const Rommel = (() => {
             "fontColour": "#000000",
             "borderColour": "#FFFF00",
             "borderStyle": "5px groove",
+            "dice": "Soviet",
         },
         "Germany": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/329415788/ypEgv2eFi-BKX3YK6q_uOQ/thumb.png?1677173028",
@@ -38,6 +39,7 @@ const Rommel = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#000000",
             "borderStyle": "5px double",
+            "dice": "Germany",
         },
         "UK": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/330506939/YtTgDTM3q7p8m0fJ4-E13A/thumb.png?1677713592",
@@ -46,6 +48,7 @@ const Rommel = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#BC2D2F",
             "borderStyle": "5px groove",
+            "dice": "UK",
         },
         "USA": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/327595663/Nwyhbv22KB4_xvwYEbL3PQ/thumb.png?1676165491",
@@ -54,6 +57,7 @@ const Rommel = (() => {
             "fontColour": "#000000",
             "borderColour": "#006400",
             "borderStyle": "5px double",
+            "dice": "USA",
         },
         "Canada": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/381473103/jnulRv5tzfstQs-K_VsVmQ/thumb.png?1708654212",
@@ -62,6 +66,7 @@ const Rommel = (() => {
             "fontColour": "#FFFFFF",
             "borderColour": "#C43C2C",
             "borderStyle": "5px groove",
+            "dice": "Canada",
         },
         "Italy": {
             "image": "https://s3.amazonaws.com/files.d20.io/images/381473374/BxV9mm4UWzurm2seaoyqng/thumb.png?1708654356",
@@ -70,6 +75,7 @@ const Rommel = (() => {
             "fontColour": "#000000",
             "borderColour": "#C43C2C",
             "borderStyle": "5px double",
+            "dice": "Italy",
         },
 
 
@@ -82,6 +88,7 @@ const Rommel = (() => {
             "fontColour": "#000000",
             "borderColour": "#00FF00",
             "borderStyle": "5px ridge",
+            "dice": "Neutral",
         },
     
 
@@ -304,6 +311,7 @@ const Rommel = (() => {
 
     const DisplayDice = (roll,tablename,size) => {
         roll = roll.toString();
+log(tablename)
         if (!tablename) {
             tablename = "Neutral";
         }
@@ -482,12 +490,13 @@ const Rommel = (() => {
                 layer: "map",
                 fill: "#000000",
                 stroke: "#000000",
-                stroke_width: 5,
+                stroke_width: 3,
                 left: left,
                 top: top,
                 width: width,
                 height: height,
             });
+            toFront(newLine);
         }
         for (let i=1;i<y;i++) {
             let y1 = i*210;
@@ -503,12 +512,13 @@ const Rommel = (() => {
                 layer: "map",
                 fill: "#000000",
                 stroke: "#000000",
-                stroke_width: 5,
+                stroke_width: 3,
                 left: left,
                 top: top,
                 width: width,
                 height: height,
             });
+            toFront(newLine);
         }
         _.each(GridMap,column => {
             _.each(column,square => {
@@ -592,13 +602,53 @@ const Rommel = (() => {
         return text;
     };
 
+    const RollD6 = (msg) => {
+        let Tag = msg.content.split(";");
+        PlaySound("Dice");
+        let roll = randomInteger(6);
+        if (Tag.length === 1) {
+            let playerID = msg.playerid;
+            let nation = "Neutral";
+log(playerID)
 
+
+            if (state.Rommel.info.players[playerID] === undefined) {
+log("None or Undefined")
+log(state.Rommel.info.players[playerID])
+
+                if (msg.selected) {
+                    let id = msg.selected[0]._id;
+                    if (id) {
+                        let tok = findObjs({_type:"graphic", id: id})[0];
+                        let char = getObj("character", tok.get("represents")); 
+                        nation = Attribute(char,"nation");
+                        player = (Axis.includes(nation)) ? 0:1;
+                        state.Rommel.info.players[playerID] = player;
+                    }
+                }
+            } else {
+log("In Here")
+log(state.Rommel.info.players[playerID])
+log(state.Rommel.info.nations[player])
+                player = parseInt(state.Rommel.info.players[playerID]);
+                nation = state.Rommel.info.nations[player][0];
+            }
+log(nation)
+
+
+            let res = "/direct " + DisplayDice(roll,Nations[nation].dice,40);
+            sendChat("player|" + playerID,res);
+        } else {
+            //functions
+        }
+    }
 
     const ClearState = () => {
         sendChat("","State Cleared");
         state.Rommel.info = {
             elements: [0,0],
             nations: [[],[]],
+            players: {}, //indexed by playerID, indicates which side they're on
 
         }
 
@@ -717,7 +767,9 @@ const Rommel = (() => {
             case '!UnitCreation':
                 UnitCreation(msg);    
                 break;
-
+            case '!RollD6':
+                RollD6(msg);
+                break;
         }
     };
 
