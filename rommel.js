@@ -73,7 +73,7 @@ const Rommel = (() => {
             "backgroundColour": "#40904E",
             "titlefont": "Arial",
             "fontColour": "#000000",
-            "borderColour": "#C43C2C",
+            "borderColour": "#EA3323",
             "borderStyle": "5px double",
             "dice": "Italy",
         },
