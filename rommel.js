@@ -816,10 +816,10 @@ log(gridCoord)
             phaseNumber = 0;
         } 
         phase = phases[phaseNumber];
-        NextPhase2(phase);
+        NextPhase2(turn,phase);
     }
 
-    const NextPhase2 = (phase) => {
+    const NextPhase2 = (turn,phase) => {
         state.Rommel.info.phase = phase;
         let even = (turn % 2  === 0) ? true:false;
         let startingPlayer = state.Rommel.info.startingPlayer;
@@ -828,7 +828,9 @@ log(gridCoord)
         SetupCard("Turn " + turn,phase + " Phase",state.Rommel.info.nations[currentPlayer][0]);
         if (phase === "Start") {
             state.Rommel.info.turn++;
-            let turn = state.Rommel.info.turn;
+            turn++;
+            currentPlayer = (currentPlayer === 0) ? 1:0;
+            SetupCard("Turn " + turn,phase + " Phase",state.Rommel.info.nations[currentPlayer][0]);
             let maxTurns = state.Rommel.info.maxTurns;
             if (turn > maxTurns) {
                 SetupCard("End of Game","","Neutral");
@@ -920,7 +922,7 @@ log(gridCoord)
         state.Rommel.info.turn = 0;
         state.Rommel.info.ops[0] = axisOps;
         state.Rommel.info.ops[1] = alliedOps;
-        NextPhase2("Start");
+        NextPhase2(0,"Start");
     }
 
     const ResetUnits = (player) => {
