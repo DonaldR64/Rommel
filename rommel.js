@@ -663,10 +663,12 @@ log(gridCoord)
             units: {}, //used in rebuild, has elementID, index by unitID
             elements: {}, //used in rebuild, has element names and colours, indexed by elementID
             turn: 0,
+            phase: "End",
             maxTurns: 0,
             startingPlayer: 0,
             secondPlayer: 1,
             ops: [0,0],
+
         }
         let tokens = findObjs({
             _pageid: Campaign().get("playerpageid"),
@@ -804,6 +806,87 @@ log(gridCoord)
     }
 
 
+    const NextPhase = () => {
+        let phase = state.Rommel.info.phase;
+        let turn = state.Rommel.info.turn;
+        let phases = ["Start","Road","Tactical","End"];
+        let phaseNumber = phases.indexOf(phase);
+        phaseNumber++;
+        if (phaseNumber >= phases.length) {
+            phaseNumber = 0;
+        } 
+        phase = phases[phaseNumber];
+        NextPhase2(phase);
+    }
+
+    const NextPhase2 = (phase) => {
+        state.Rommel.info.phase = phase;
+        let even = (turn % 2  === 0) ? true:false;
+        let startingPlayer = state.Rommel.info.startingPlayer;
+        let secondPlayer = state.Rommel.info.secondPlayer;
+        let currentPlayer = (even === false) ? startingPlayer:secondPlayer;
+        SetupCard("Turn " + turn,phase + " Phase",state.Rommel.info.nations[currentPlayer][0]);
+        if (phase === "Start") {
+            state.Rommel.info.turn++;
+            let turn = state.Rommel.info.turn;
+            let maxTurns = state.Rommel.info.maxTurns;
+            if (turn > maxTurns) {
+                SetupCard("End of Game","","Neutral");
+                outputCard.body.push("Game ends on Turns");
+                PrintCard();
+                return;
+            }
+            ButtonInfo("Standard OPS Roll","!OPS;" + currentPlayer + ";Standard");
+            ButtonInfo("Reset OPS","!OPS;" + currentPlayer + ";Reset");
+            ResetUnits(currentPlayer);
+        } else if (phase === "Road") {
+
+
+
+
+
+        } else if (phase === "Tactical") {
+
+
+
+
+        } else if (phase === "End") {
+
+
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        PrintCard();
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     const UnitCreation = (msg) => {
         let Tag = msg.content.split(";");
@@ -837,29 +920,7 @@ log(gridCoord)
         state.Rommel.info.turn = 0;
         state.Rommel.info.ops[0] = axisOps;
         state.Rommel.info.ops[1] = alliedOps;
-
-        NewTurn();
-    }
-
-    const NewTurn = () => {
-        state.Rommel.info.turn++;
-        let turn = state.Rommel.info.turn;
-        let maxTurns = state.Rommel.info.maxTurns;
-        if (turn > maxTurns) {
-            SetupCard("End of Game","","Neutral");
-            outputCard.body.push("Game ends on Turns");
-            PrintCard();
-            return;
-        }
-        let even = (turn % 2  === 0) ? true:false;
-        let startingPlayer = state.Rommel.info.startingPlayer;
-        let secondPlayer = state.Rommel.info.secondPlayer;
-        let currentPlayer = (even === false) ? startingPlayer:secondPlayer;
-        SetupCard("Turn " + turn,"",state.Rommel.info.nations[currentPlayer][0]);
-        ButtonInfo("Standard OPS Roll","!OPS;" + currentPlayer + ";Standard");
-        ButtonInfo("Reset OPS","!OPS;" + currentPlayer + ";Reset");
-        ResetUnits(currentPlayer);
-        PrintCard();
+        NextPhase2("Start");
     }
 
     const ResetUnits = (player) => {
@@ -1006,8 +1067,8 @@ log(gridCoord)
             case '!StartGame':
                 StartGame(msg);
                 break;
-            case '!NewTurn':
-                NewTurn();
+            case '!NextPhase':
+                NextPhase();
                 break;
             case '!OPS':
                 OPS(msg);
